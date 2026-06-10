@@ -1,0 +1,159 @@
+{
+  "schema_version": "1.0.0",
+  "report_date": "2026-06-05",
+  "weekday": "周五",
+  "cutoff_time": "11:30",
+  "theme": "暗金杂志封面风格",
+  "data_quality": {
+    "status": "complete",
+    "confidence": "high",
+    "source_coverage": {
+      "financial_analysis": true,
+      "eastmoney": true,
+      "cls": true,
+      "stcn_databao": true
+    },
+    "missing_fields": [],
+    "conflicts": [],
+    "warnings": []
+  },
+  "market_view": {
+    "headline": "沪指微红 · 北证爆发 · 赚钱效应回暖",
+    "thesis": "结构活跃，题材扩散",
+    "tone": "分歧修复",
+    "style_shift": "资金从高位半导体兑现切向玻璃基板、通信与低位弹性分支",
+    "core_features": [
+      "沪指微红，北证50暴涨6.74%，小盘成长占优。",
+      "玻璃基板、6G、CPO等题材涨幅居前，赚钱效应围绕题材扩散。",
+      "半日成交1.88万亿，较昨日放量1572亿，热点轮动加快。"
+    ]
+  },
+  "indices": [
+    {"name": "上证指数", "close": 4075, "pct": 0.43, "source_key": "eastmoney_market"},
+    {"name": "深证成指", "close": 15623, "pct": -0.24, "source_key": "eastmoney_market"},
+    {"name": "创业板指", "close": 4055, "pct": -0.82, "source_key": "eastmoney_market"},
+    {"name": "北证50", "close": 1313, "pct": 6.74, "source_key": "eastmoney_market"}
+  ],
+  "turnover": {
+    "amount_text": "1.88万亿",
+    "amount_yuan": 1880000000000,
+    "change_text": "较昨日放量约1572亿",
+    "change_yuan": 157200000000,
+    "source_key": "eastmoney_market"
+  },
+  "breadth": {
+    "up": 4014,
+    "down": 1420,
+    "flat": null,
+    "ratio_text": "涨跌比 2.83:1",
+    "notable": "4000+股普涨，赚钱效应明显回暖",
+    "source_key": "eastmoney_market"
+  },
+  "capital_flow": {
+    "metric_name": "主力资金",
+    "net_text": "结构分化",
+    "net_yuan": null,
+    "style_label": "低位科技承接，高位获利了结",
+    "northbound_text": "净流入 56.2亿",
+    "receiving_directions": [
+      {"name": "玻璃基板", "amount_text": "题材强承接"},
+      {"name": "6G概念", "amount_text": "低位扩散"},
+      {"name": "网络游戏", "amount_text": "人气修复"}
+    ],
+    "selling_directions": [
+      {"name": "电力公用事业", "amount_text": "高位兑现"},
+      {"name": "半导体硬件", "amount_text": "内部轮动"},
+      {"name": "抽水蓄能", "amount_text": "跟随走弱"}
+    ],
+    "source_key": "eastmoney_capital"
+  },
+  "limit_up": {
+    "display口径": "上午收盘口径",
+    "limit_up": 68,
+    "limit_down": 3,
+    "broken_board": null,
+    "seal_rate_pct": null,
+    "source_key": "cls_limit_review"
+  },
+  "themes": {
+    "leading": [
+      {"rank": 1, "name": "玻璃基板", "pct": 7.67, "limit_up_count": 8, "reason": "京东方A带队，多只涨停", "leaders": ["京东方A", "沃格光电"], "口径": "题材概念口径"},
+      {"rank": 2, "name": "6G概念", "pct": 5.5, "limit_up_count": 3, "reason": "工信部专项行动催化", "leaders": ["盛路通信", "武汉凡谷"], "口径": "题材概念口径"},
+      {"rank": 3, "name": "CPO/光通信", "pct": 5.0, "limit_up_count": 5, "reason": "低位硬科技扩散", "leaders": ["烽火通信", "特发信息"], "口径": "题材概念口径"},
+      {"rank": 4, "name": "网络游戏", "pct": 4.5, "limit_up_count": 3, "reason": "传媒方向修复", "leaders": ["中青宝"], "口径": "题材概念口径"},
+      {"rank": 5, "name": "化纤/海运", "pct": 3.0, "limit_up_count": 3, "reason": "低位补涨", "leaders": ["凤凰航运"], "口径": "行业口径"},
+      {"rank": 6, "name": "零售/房地产", "pct": 2.5, "limit_up_count": 2, "reason": "消费地产轮动", "leaders": ["大悦城", "步步高"], "口径": "题材概念口径"},
+      {"rank": 7, "name": "煤炭", "pct": 2.0, "limit_up_count": 2, "reason": "资源股局部修复", "leaders": ["大有能源"], "口径": "行业口径"}
+    ],
+    "lagging": [
+      {"rank": 1, "name": "电力/公用事业", "pct": -2.5, "reason": "高位兑现", "leaders": ["建投能源"], "口径": "行业口径"},
+      {"rank": 2, "name": "MLCC/超级电容", "pct": -2.0, "reason": "科技成长内部分化", "leaders": [], "口径": "题材概念口径"},
+      {"rank": 3, "name": "半导体/硬件", "pct": -1.8, "reason": "前期涨幅大后轮动", "leaders": ["江波龙"], "口径": "题材概念口径"},
+      {"rank": 4, "name": "抽水蓄能", "pct": -1.5, "reason": "跟随电力回调", "leaders": [], "口径": "题材概念口径"},
+      {"rank": 5, "name": "培育钻石", "pct": -1.3, "reason": "前期涨幅大", "leaders": [], "口径": "题材概念口径"}
+    ],
+    "concentrated_limit_up": [
+      {"name": "玻璃基板", "count": 8, "leaders": ["京东方A", "沃格光电", "金瑞矿业"], "口径": "题材概念口径"},
+      {"name": "CPO/光通信", "count": 5, "leaders": ["烽火通信", "特发信息", "永鼎股份"], "口径": "题材概念口径"},
+      {"name": "6G概念", "count": 3, "leaders": ["盛路通信", "武汉凡谷"], "口径": "题材概念口径"}
+    ],
+    "source_key": "stcn_databao"
+  },
+  "ladder": {
+    "highest_board": 5,
+    "highest_stock": "大有能源",
+    "highest_theme": "煤炭",
+    "promotion_summary": "大有能源从4板晋级5板，空间高度仍在资源方向，题材主线集中在低位科技。",
+    "boards": [
+      {"board": 5, "stocks": [{"name": "大有能源", "theme": "煤炭", "role": "空间龙"}]},
+      {"board": 4, "stocks": [{"name": "天津新材", "theme": "新材料", "role": "中位接力"}]},
+      {"board": 3, "stocks": [{"name": "红星发展", "theme": "资源"}, {"name": "茂业商业", "theme": "商业"}]},
+      {"board": 2, "stocks": [{"name": "京东方A", "theme": "玻璃基板"}, {"name": "盛路通信", "theme": "6G"}]}
+    ],
+    "source_key": "cls_limit_review"
+  },
+  "midday_temperature_v1": {
+    "score": 63,
+    "state": "分歧修复",
+    "confidence": "high",
+    "factors": [
+      {"name": "指数强度", "score": 12, "max": 18, "reason": "沪指翻红且北证50领涨，但深成指、创业板仍弱。"},
+      {"name": "市场广度", "score": 13, "max": 16, "reason": "上涨家数显著多于下跌家数，普涨宽度较好。"},
+      {"name": "量能变化", "score": 10, "max": 12, "reason": "半日成交较昨日明显放大，承接意愿回升。"},
+      {"name": "资金风格", "score": 9, "max": 14, "reason": "资金集中低位科技，但高位方向仍有兑现。"},
+      {"name": "涨停质量", "score": 14, "max": 22, "reason": "涨停数量较高，但午后仍需验证封板和晋级质量。"},
+      {"name": "风险反馈控制", "score": 5, "max": 18, "reason": "跌停不多，但电力和半导体高位回调压制接力。"}
+    ]
+  },
+  "midday_interpretation": {
+    "state": "低位题材抱团",
+    "core_judgment": "上午不是全面牛市式进攻，而是低位科技承接高位兑现后的结构修复。",
+    "narrative": "指数端沪强深弱，说明权重护盘和题材弹性并不同步；成交放大叠加4000股上涨，资金愿意重新做多，但选择的是玻璃基板、6G和光通信等低位分支，而不是继续拥挤高位科技。",
+    "afternoon_confirm": "玻璃基板和通信方向继续扩散，且空间股不出现跳水负反馈。",
+    "afternoon_weaken": "领涨题材冲高回落，涨停集中度下降，资金重新转向防御。",
+    "afternoon_risk": "高标断板或炸板增加，并带动低位科技首板回落。",
+    "source_keys": ["eastmoney_market", "cls_limit_review", "stcn_databao"]
+  },
+  "afternoon_signals": {
+    "确认信号": ["低位科技继续扩散，涨停集中题材不明显炸板"],
+    "弱化信号": ["玻璃基板或通信冲高回落，成交放大但个股回落增多"],
+    "风险信号": ["空间股跳水或高位科技继续补跌，短线接力重新转弱"]
+  },
+  "wechat_commentary_v1": {
+    "text": "今天上午A股不是全面进攻，而是指数护盘与低位题材抱团并存。资金从高位科技兑现后切向玻璃基板、通信等弹性分支，成交放大说明赚钱效应回暖但仍偏结构化。午后关键看领涨题材能否继续扩散；若高标跳水或炸板增加，修复会重新转弱。",
+    "core_judgment": "指数护盘与低位题材抱团并存",
+    "capital_logic": "资金从高位科技兑现后切向玻璃基板、通信等弹性分支",
+    "afternoon_validation": "午后看领涨题材扩散和高标负反馈",
+    "source_keys": ["eastmoney_market", "stcn_databao", "cls_limit_review"]
+  },
+  "sources": {
+    "financial_analysis": {"name": "financial-analysis marketInsight", "url": null, "note": "用于午评判断与异常核验。"},
+    "eastmoney_market": {"name": "东方财富行情中心", "url": "https://quote.eastmoney.com/", "note": "指数、涨跌家数、成交额。"},
+    "eastmoney_capital": {"name": "东方财富资金流向", "url": "https://data.eastmoney.com/zjlx/", "note": "主力资金和板块资金风格。"},
+    "cls_limit_review": {"name": "财联社涨停复盘", "url": "https://www.cls.cn/", "note": "涨停、跌停、连板和空间高度。"},
+    "stcn_databao": {"name": "证券时报·数据宝", "url": "https://www.stcn.com/data/", "note": "题材、行业强弱和代表个股交叉验证。"}
+  },
+  "assumptions": [
+    "本 fixture 使用用户参考图中的样例数字，仅用于验证字段和渲染结构。"
+  ]
+}

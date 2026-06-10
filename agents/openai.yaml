@@ -1,0 +1,7 @@
+interface:
+  display_name: "A股午评贴图"
+  short_description: "生成A股上午收盘市场午评贴图"
+  brand_color: "#D7B56D"
+  default_prompt: "Use $a-share-midday-wechat-images to generate today's A股午评贴图."
+policy:
+  allow_implicit_invocation: true
