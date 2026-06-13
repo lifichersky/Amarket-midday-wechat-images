@@ -70,6 +70,40 @@ test('temperature model requires the six fixed factors and score sum', async () 
   assert.match(result.errors.join('\n'), /does not equal factor sum/);
 });
 
+test('capital-flow display rows keep net amount short and reject narrative fields', async () => {
+  const data = await loadSample();
+  data.capital_flow.metric_name = '行业主力资金净流入';
+  data.capital_flow.net_text = '工业金属+69.63亿居首，有色+科技双线进攻';
+
+  let result = await validateMiddayDataAgainstSchema(data);
+  assert.match(result.errors.join('\n'), /capital_flow\.metric_name.*at most 6/);
+  assert.match(result.errors.join('\n'), /capital_flow\.net_text.*at most 16/);
+
+  result = validateMiddayData(data);
+  assert.match(result.errors.join('\n'), /capital_flow\.metric_name must be <= 6/);
+  assert.match(result.errors.join('\n'), /capital_flow\.net_text must be <= 16/);
+  assert.match(result.errors.join('\n'), /capital_flow\.net_text must be a compact row value/);
+});
+
+test('capital-flow net amount must be verified money, not placeholders or vague descriptions', async () => {
+  const data = await loadSample();
+  data.capital_flow.net_text = '大幅净流入';
+
+  let result = await validateMiddayDataAgainstSchema(data);
+  assert.match(result.errors.join('\n'), /capital_flow\.net_text must match/);
+
+  result = validateMiddayData(data);
+  assert.match(result.errors.join('\n'), /capital_flow\.net_text must include a displayed money amount/);
+});
+
+test('capital-flow data rejects legacy northbound field', async () => {
+  const data = await loadSample();
+  data.capital_flow.northbound_text = '净流入 56.2亿';
+
+  const result = validateMiddayData(data);
+  assert.match(result.errors.join('\n'), /capital_flow\.northbound_text must be removed/);
+});
+
 test('leading themes require limit-up counts for count-based bars', async () => {
   const data = await loadSample();
   delete data.themes.leading[0].limit_up_count;
@@ -305,6 +339,31 @@ test('light institutional page 2 hero subtitle and metric box come from midday d
   assert.doesNotMatch(html, /科技主线强势扩散，市场活跃度提升/);
   assert.doesNotMatch(html, /较昨日 \+23/);
   assert.doesNotMatch(html, /较昨日 -2/);
+});
+
+test('capital flow modules omit northbound and show flow-in/out rows', async () => {
+  const data = await loadSample();
+  for (const theme of ['浅色机构午报风格', '暗金杂志封面风格', '深色终端杂志风格']) {
+    data.theme = theme;
+    const html = renderReportHtml(data);
+    assert.doesNotMatch(html, /北向资金/);
+    assert.doesNotMatch(html, /northbound_text/);
+    if (theme !== '暗金杂志封面风格') {
+      assert.match(html, /流入方向/);
+      assert.match(html, /流出方向/);
+    }
+  }
+});
+
+test('light institutional capital rows use compact fixed-width guards', async () => {
+  const data = await loadSample();
+  data.theme = '浅色机构午报风格';
+  const html = renderReportHtml(data);
+
+  assert.match(html, /\.li-flow p \{[^}]*display: grid;[^}]*grid-template-columns: minmax\(0, 98px\) minmax\(0, 1fr\)/s);
+  assert.match(html, /\.li-flow span, \.li-flow b \{[^}]*overflow: hidden;[^}]*text-overflow: ellipsis;[^}]*white-space: nowrap/s);
+  assert.match(html, /\.li-flow b \{[^}]*text-align: right/s);
+  assert.match(html, /\.li-flow b\.bearish \{[^}]*color: #138450/s);
 });
 
 test('dark terminal page 1 red banner keeps long subtitle within the box and uses line-clamp safety net', async () => {

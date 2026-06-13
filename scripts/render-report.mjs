@@ -202,19 +202,33 @@ function ladderSummaryText(data, limit = 3) {
   return data.ladder?.promotion_summary ?? '';
 }
 
+function capitalDirectionText(items, limit = 2) {
+  const rows = (items ?? [])
+    .map((item) => ({
+      name: String(item?.name ?? '').trim(),
+      amount: String(item?.amount_text ?? '').trim()
+    }))
+    .filter((item) => item.name);
+  if (!rows.length) return '待确认';
+  return rows.slice(0, limit).map((item) => {
+    if (item.amount && /[+-]?\d/.test(item.amount)) return `${item.name}${item.amount}`;
+    return item.name;
+  }).join(' / ');
+}
+
 function lightSignalCards(data) {
   const turnover = data.turnover?.amount_text ?? '--';
   const change = String(data.turnover?.change_text ?? '').replace(/较昨日放量约?/, '');
-  const northbound = data.capital_flow?.northbound_text ?? data.capital_flow?.net_text ?? '--';
   const leadingNames = (data.themes?.leading ?? []).map((item) => String(item.name ?? '').trim()).filter(Boolean);
   const focusNames = leadingNames.length >= 2 ? `${leadingNames[0]}、${leadingNames[1]}` : leadingNames.join('、') || '主线题材';
   const focusDetail = (data.afternoon_signals?.['确认信号']?.[0]) || `关注${focusNames}能否继续扩散`;
   const riskDetail = (data.afternoon_signals?.['弱化信号']?.[0]) || (data.afternoon_signals?.['风险信号']?.[0]) || '关注午后是否出现冲高回落';
+  const flowDetail = `${data.capital_flow?.metric_name ?? '主力资金'}${data.capital_flow?.net_text ?? '--'}，流入看${capitalDirectionText(data.capital_flow?.receiving_directions, 2)}`;
   const cards = [
     ['bars', '量能观察', `半日成交${turnover}，较昨日放量${change}，量能延续是关键`],
     ['target', '主线验证', focusDetail],
     ['trend', '走弱信号', riskDetail],
-    ['yen', '资金风向', `北向${northbound}，关注午后是否持续流入`]
+    ['yen', '资金风向', flowDetail]
   ];
   return cards.map(([icon, title, text]) => `
     <div class="li-signal-card">
@@ -261,8 +275,9 @@ function lightInstitutionalPage1(data) {
   const observationParagraphs = [feature0, feature1, feature2, data.midday_interpretation?.afternoon_confirm]
     .filter((item) => String(item ?? '').trim().length > 0);
   const capitalRows = [
-    [data.capital_flow?.metric_name ?? '主力资金', data.capital_flow?.net_text ?? '--'],
-    ['北向资金', data.capital_flow?.northbound_text ?? '--']
+    [data.capital_flow?.metric_name ?? '主力资金', data.capital_flow?.net_text ?? '--', 'bullish'],
+    ['流入方向', capitalDirectionText(data.capital_flow?.receiving_directions, 2), 'bullish'],
+    ['流出方向', capitalDirectionText(data.capital_flow?.selling_directions, 2), 'bearish']
   ];
   return `
     <section class="poster li-poster li-page1" data-page="1" data-title="午盘全景与资金风格">
@@ -301,7 +316,7 @@ function lightInstitutionalPage1(data) {
             <div class="li-round-icon gold">${lightIcon('yuan')}</div>
             <div>
               <h2>资金动向 <em>（半日）</em></h2>
-              ${capitalRows.map(([label, value]) => `<p><span>${escapeHtml(label)}</span><b>${escapeHtml(value)}</b></p>`).join('')}
+              ${capitalRows.map(([label, value, tone]) => `<p><span>${escapeHtml(label)}</span><b class="${escapeHtml(tone)}">${escapeHtml(value)}</b></p>`).join('')}
             </div>
           </div>
         </section>
@@ -452,10 +467,10 @@ function lightInstitutionalCss() {
     .li-breadth-head b { font-size: 36px; margin: 0 4px; }
     .li-breadth-bar { display: flex; height: 18px; margin-top: 18px; border-radius: 999px; overflow: hidden; background: rgba(35,47,60,.10); }
     .li-breadth-bar i { display: block; height: 100%; }
-    .li-breadth-foot { display: grid; grid-template-columns: 1fr 1fr .75fr .75fr; gap: 18px; margin-top: 19px; padding-top: 0; color: #2f3336; font-size: 22px; text-align: center; }
-    .li-breadth-foot span { border-right: 1px solid rgba(34,52,76,.24); }
+    .li-breadth-foot { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.35fr) minmax(0, .65fr) minmax(0, .65fr); gap: 12px; margin-top: 17px; padding-top: 0; color: #2f3336; font-size: 19px; text-align: center; }
+    .li-breadth-foot span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; border-right: 1px solid rgba(34,52,76,.24); }
     .li-breadth-foot span:last-child { border-right: 0; }
-    .li-breadth-foot b { font-size: 28px; }
+    .li-breadth-foot b { font-size: 24px; }
     .li-capital-panel { left: 34px; right: 34px; top: 770px; height: 222px; display: grid; grid-template-columns: 1fr 1.08fr; }
     .li-turnover, .li-flow { display: grid; grid-template-columns: 70px 1fr; column-gap: 24px; padding: 24px 22px; }
     .li-flow { border-left: 1px solid rgba(30,58,91,.36); }
@@ -467,9 +482,11 @@ function lightInstitutionalCss() {
     .li-turnover p { margin: 16px 0 0; color: #62666a; font-size: 20px; }
     .li-turnover p b { color: #d8211d; font-weight: 500; }
     .li-flow h2 em { font-size: 19px; font-style: normal; font-weight: 400; color: #323840; }
-    .li-flow p { display: flex; justify-content: space-between; align-items: center; height: 36px; margin: 0; border-bottom: 1px solid rgba(30,58,91,.14); color: #42464a; font-size: 19px; }
-    .li-flow p:first-of-type { margin-top: 15px; }
-    .li-flow b { color: #d8211d; font-size: 20px; font-weight: 500; }
+    .li-flow p { display: grid; grid-template-columns: minmax(0, 98px) minmax(0, 1fr); column-gap: 12px; align-items: center; height: 30px; margin: 0; border-bottom: 1px solid rgba(30,58,91,.14); color: #42464a; font-size: 18px; }
+    .li-flow p:first-of-type { margin-top: 12px; }
+    .li-flow span, .li-flow b { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .li-flow b { color: #d8211d; font-size: 20px; font-weight: 500; text-align: right; }
+    .li-flow b.bearish { color: #138450; }
     .li-observe-panel { left: 34px; right: 34px; top: 1016px; height: 268px; display: grid; grid-template-columns: 70px 1fr; gap: 24px; padding: 24px 24px; }
     .li-observe-panel p { margin: 15px 0 0; color: #25282b; font-size: 20px; line-height: 1.52; }
     .li-footer { position: absolute; left: 34px; right: 34px; bottom: 35px; color: #3a3d41; font-size: 20px; text-align: center; letter-spacing: 4px; }
@@ -721,7 +738,6 @@ function darkEditorialPage1(data) {
   const upPct = clamp(Math.round((up / total) * 1000) / 10, 0, 100);
   const downPct = Math.round((100 - upPct) * 10) / 10;
   const features = (data.market_view?.core_features ?? []).map((item) => String(item ?? '').trim()).filter(Boolean);
-  const northbound = data.capital_flow?.northbound_text ?? data.capital_flow?.net_text ?? '--';
   const coreHeadings = ['指数与权重', '题材与情绪', '量能与博弈'];
   const coreCards = features.slice(0, coreHeadings.length).map((body, index) => ({
     icon: ['chart', 'flame', 'coins'][index] ?? 'chart',
@@ -777,7 +793,7 @@ function darkEditorialPage1(data) {
             <div><span>较昨日放量</span><strong class="bullish">${escapeHtml(String(data.turnover?.change_text ?? '').replace(/较昨日放量约?/, ''))}</strong></div>
             <div class="de-divider"></div>
             <div class="de-icon-bubble gold">${darkIcon('coins')}</div>
-            <div><span>北向资金(半日)</span><strong class="bullish">${escapeHtml(northbound)}</strong></div>
+            <div><span>${escapeHtml(data.capital_flow?.metric_name ?? '主力资金')}</span><strong class="bullish">${escapeHtml(data.capital_flow?.net_text ?? '--')}</strong></div>
           </div>
         </section>
 
@@ -1005,7 +1021,7 @@ function darkEditorialCss() {
     .de-breadth p { margin: 6px 0 0; text-align: center; color: #b8b9b6; font-size: 18px; line-height: 1.15; font-weight: 700; }
 
     .de-money { left: 26px; right: 26px; top: 936px; height: 168px; padding: 22px 26px; }
-    .de-money-grid { display: grid; grid-template-columns: 72px 1fr 1fr 1px 72px 1fr; gap: 22px; align-items: center; }
+    .de-money-grid { display: grid; grid-template-columns: 72px 1fr 1fr 1px 72px 1.1fr; gap: 22px; align-items: center; }
     .de-money-grid span { display: block; color: #c9cac5; font-size: 19px; font-weight: 800; }
     .de-money-grid strong { display: block; margin-top: 6px; color: #ff5652; font-size: 34px; line-height: 1; }
     .de-icon-bubble { width: 66px; height: 66px; border-radius: 50%; display: grid; place-items: center; font-size: 43px; font-weight: 900; box-shadow: inset 0 0 0 4px rgba(255,255,255,.10), 0 8px 18px rgba(0,0,0,.28); }
@@ -1310,7 +1326,7 @@ function darkTerminalPage1(data) {
 
         <section class="dt-panel dt-money-panel">
           <div class="dt-round gold">${darkTerminalIcon('yuan')}</div>
-          <div><h2>资金风向 <em>（半日）</em></h2><p><span>${escapeHtml(data.capital_flow?.metric_name ?? '主力资金')}</span><b>${escapeHtml(data.capital_flow?.net_text ?? '--')}</b></p><p><span>北向资金</span><b>${escapeHtml(data.capital_flow?.northbound_text ?? '--')}</b></p></div>
+          <div><h2>资金风向 <em>（半日）</em></h2><p><span>${escapeHtml(data.capital_flow?.metric_name ?? '主力资金')}</span><b>${escapeHtml(data.capital_flow?.net_text ?? '--')}</b></p><p><span>流入方向</span><b>${escapeHtml(capitalDirectionText(data.capital_flow?.receiving_directions, 2))}</b></p><p><span>流出方向</span><b class="bearish">${escapeHtml(capitalDirectionText(data.capital_flow?.selling_directions, 2))}</b></p></div>
         </section>
 
         <section class="dt-panel dt-map-panel">
@@ -1548,7 +1564,9 @@ function darkTerminalCss() {
     .dt-turnover-panel p { margin: 9px 0 0; color: #babfc0; font-size: 18px; }
     .dt-turnover-panel p b, .dt-money-panel b { color: #ff5148; font-weight: 500; }
     .dt-money-panel h2 em { color: #c5c2bb; font-size: 19px; font-style: normal; font-weight: 400; }
-    .dt-money-panel p { display: flex; justify-content: space-between; margin: 6px 0 0; padding-bottom: 4px; border-bottom: 1px solid rgba(185,191,193,.16); color: #c6c8c8; font-size: 17px; }
+    .dt-money-panel p { display: grid; grid-template-columns: 76px minmax(0, 1fr); column-gap: 10px; margin: 5px 0 0; padding-bottom: 3px; border-bottom: 1px solid rgba(185,191,193,.16); color: #c6c8c8; font-size: 16px; }
+    .dt-money-panel p b { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: right; }
+    .dt-money-panel p b.bearish { color: #52c987; }
     .dt-map-panel { left: 16px; right: 16px; top: 1004px; height: 180px; padding: 20px 14px; }
     .dt-map-panel h2 em { margin-left: 13px; color: #aeb9bc; font-size: 15px; font-style: normal; font-weight: 400; }
     .dt-map-grid { display: grid; grid-template-columns: repeat(5, 1fr); margin-top: 22px; min-height: 82px; border: 1px solid rgba(195,118,54,.35); border-radius: 4px; overflow: hidden; }
@@ -1786,6 +1804,9 @@ export async function runBrowserPreflight(page) {
     if (posters.length !== 2) errors.push(`expected 2 posters, found ${posters.length}`);
     for (const poster of posters) {
       const pageNo = poster.getAttribute('data-page');
+      if (/北向资金/.test(poster.textContent || '')) {
+        errors.push(`page ${pageNo}: 北向资金 must not be displayed because intraday disclosure is unavailable`);
+      }
       const rect = poster.getBoundingClientRect();
       if (Math.round(rect.width) !== 1080 || Math.round(rect.height) !== 1440) {
         errors.push(`page ${pageNo}: poster size ${Math.round(rect.width)}x${Math.round(rect.height)} is not 1080x1440`);

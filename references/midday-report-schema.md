@@ -82,6 +82,17 @@ Required fields:
 
 Do not invent policy/news/catalyst background. If no reliable source verifies a catalyst, use safer language such as `盘面逻辑`, `资金偏好`, `短线情绪路径`, `低位补涨试错`, `高位抱团`, `防御承接`, or `退潮负反馈`.
 
+## Capital Flow Display Contract
+
+`capital_flow` drives the `资金动向/资金风向` module on image 1. 北向资金 is not displayed because intraday disclosure is no longer available. These fields are display fields, not narrative fields:
+
+- `metric_name`: short label, max 6 visible characters, such as `主力资金` or `行业主力资金`.
+- `net_text`: short money value, max 16 visible characters, and must include an amount with `亿` or `万`, such as `净流出约300亿`, `+69.63亿`, or `0.00亿`.
+- `receiving_directions`: displayed as the flow-in row in image 1; keep names and amounts compact.
+- `selling_directions`: displayed as the flow-out row in image 1; keep names and amounts compact.
+
+Do not write `northbound_text`. Do not put sector explanations, theme judgments, comma-separated clauses, missing-data placeholders, or vague non-numeric values such as `大幅净流入` into `net_text`. Put detailed capital interpretation into `receiving_directions`, `selling_directions`, `market_view.core_features`, or `midday_interpretation.narrative`. If the displayed money value cannot be verified after trying the fixed source families and reasonable fallback sources, do not render completed images; set `data_quality.status` to `incomplete` or ask the user whether to proceed with that limitation.
+
 ## Data Quality
 
 `data_quality` is the machine-readable audit status for the report.

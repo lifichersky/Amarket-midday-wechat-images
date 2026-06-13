@@ -6,6 +6,12 @@ export const REPORT_TITLE = 'A股午评';
 export const OUTPUT_NAMES = ['午盘全景与资金风格', '题材温度与涨跌停结构'];
 export const REQUIRED_SOURCE_COVERAGE = ['financial_analysis', 'eastmoney', 'cls', 'stcn_databao'];
 export const REQUIRED_INDICES = ['上证指数', '深证成指', '创业板指'];
+export const CAPITAL_FLOW_DISPLAY_LIMITS = new Map([
+  ['metric_name', 6],
+  ['net_text', 16]
+]);
+const CAPITAL_FLOW_MISSING_PATTERN = /--|数据暂缺|暂无|未披露|不可得|缺失|无数据|待确认|N\/A/i;
+const CAPITAL_FLOW_AMOUNT_PATTERN = /[+-]?\d+(?:\.\d+)?\s*(?:亿|万)/;
 export const REQUIRED_TEMPERATURE_FACTORS = new Map([
   ['指数强度', 18],
   ['市场广度', 16],
@@ -249,6 +255,37 @@ export function validateMiddayData(data, options = {}) {
     errors.push('market_view.core_features must contain at least 3 items');
   }
 
+  const quality = data?.data_quality;
+  const capitalFlow = data?.capital_flow;
+  if (capitalFlow) {
+    if (Object.prototype.hasOwnProperty.call(capitalFlow, 'northbound_text')) {
+      errors.push('capital_flow.northbound_text must be removed because intraday northbound disclosure is unavailable');
+    }
+    for (const [field, maxChars] of CAPITAL_FLOW_DISPLAY_LIMITS.entries()) {
+      const raw = capitalFlow[field];
+      const text = String(raw ?? '').trim();
+      if (!text || text === '--') {
+        errors.push(`capital_flow.${field} must be a displayable value for the fixed capital-flow rows`);
+        continue;
+      }
+      if (countVisibleChars(text) > maxChars) {
+        errors.push(`capital_flow.${field} must be <= ${maxChars} visible characters for the fixed capital-flow rows`);
+      }
+      if (/[，。；;：:]/.test(text)) {
+        errors.push(`capital_flow.${field} must be a compact row value, not a sentence`);
+      }
+    }
+    for (const field of ['net_text']) {
+      const text = String(capitalFlow[field] ?? '').trim();
+      if (CAPITAL_FLOW_MISSING_PATTERN.test(text)) {
+        errors.push(`capital_flow.${field} cannot be a missing-data placeholder in completed image output`);
+      }
+      if (!CAPITAL_FLOW_AMOUNT_PATTERN.test(text)) {
+        errors.push(`capital_flow.${field} must include a displayed money amount such as +69.63亿, 净流出300亿, or 0.00亿`);
+      }
+    }
+  }
+
   for (const fieldPath of [
     'data_quality',
     'market_view.headline',
@@ -278,7 +315,6 @@ export function validateMiddayData(data, options = {}) {
     has(fieldPath);
   }
 
-  const quality = data?.data_quality;
   if (quality) {
     if (!['complete', 'review_needed', 'incomplete'].includes(quality.status)) errors.push('data_quality.status must be complete, review_needed, or incomplete');
     if (quality.status === 'incomplete' && !allowIncomplete) errors.push('data_quality.status is incomplete');

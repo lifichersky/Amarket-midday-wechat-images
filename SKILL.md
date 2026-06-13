@@ -94,6 +94,7 @@ Always label口径 when mixing data types:
 - `题材概念口径`: theme/concept count such as 玻璃基板8只 or 6G概念3只.
 - `行业口径`: industry涨跌幅 or行业涨跌家数.
 - `主力资金口径`: do not mix with all-order net flow without labeling.
+- `资金动向展示口径`: image 1 no longer displays 北向资金 because intraday disclosure is no longer available. Use `capital_flow.metric_name/net_text` for the verified compact money value, then show `receiving_directions` and `selling_directions` as the flow-in/flow-out rows. Do not place sector rankings, theme judgments, missing-data placeholders, vague phrases like `大幅净流入`, or comma-separated narrative clauses in `net_text`.
 - `午评模型 v1`: midday temperature score is model output, not source data.
 
 If sources disagree, choose the clearest mainstream source for the displayed number and note the口径 in the footer, commentary, or `数据来源与口径.md`. Do not silently blend conflicting numbers.

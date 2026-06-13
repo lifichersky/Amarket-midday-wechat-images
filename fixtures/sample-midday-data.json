@@ -51,10 +51,9 @@
   },
   "capital_flow": {
     "metric_name": "主力资金",
-    "net_text": "结构分化",
-    "net_yuan": null,
+    "net_text": "净流入 56.2亿",
+    "net_yuan": 5620000000,
     "style_label": "低位科技承接，高位获利了结",
-    "northbound_text": "净流入 56.2亿",
     "receiving_directions": [
       {"name": "玻璃基板", "amount_text": "题材强承接"},
       {"name": "6G概念", "amount_text": "低位扩散"},

@@ -14,7 +14,7 @@ Include:
 - Four index cards: 上证指数, 深证成指, 创业板指, 北证50 or 科创50. If 北证50 is unavailable, use 科创50 and note口径.
 - Half-day turnover and day-over-day or same-time comparison when available.
 - Breadth module:上涨/下跌家数 and ratio visualization.
-- Capital style: net flow, strongest receiving directions, strongest selling directions, and style label.
+- Capital style: one verified主力/行业主力 amount row plus compact flow-in and flow-out rows from `receiving_directions` and `selling_directions`. Do not display 北向资金; intraday 北向 disclosure is no longer available. Narrative capital interpretation belongs in the direction lists or viewpoint modules.
 - Core features: 2-4 bullets that explain the morning, not a raw data list.
 - `午后观点`: compact judgement paragraph from `midday_interpretation.core_judgment` or `wechat_commentary_v1`.
 
