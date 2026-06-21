@@ -10,7 +10,7 @@ Default rendering is deterministic HTML/CSS. Do not call image generation for th
 
 - Theme id: `dark-editorial-magazine`.
 - Preview: `assets/theme-previews/theme-01-dark-editorial-magazine.png`.
-- Use as the default theme when the user does not specify.
+- Use only after the user has explicitly chosen or named this theme.
 - Visual tone: premium dark editorial magazine, strong title hierarchy, warm gold, restrained A-share red/green, ivory institutional panels.
 - Best for: WeChat cover impact and a strong morning-market judgment.
 

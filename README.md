@@ -23,9 +23,9 @@ The skill ships three fixed themes; pick one before any data is researched:
 
 | Chinese name | ID | Preview |
 | --- | --- | --- |
-| 暗金杂志封面风格 | `dark-editorial-magazine` | `assets/theme-previews/dark-editorial-magazine.png` |
-| 浅色机构午报风格 | `light-institutional-report` | `assets/theme-previews/light-institutional-report.png` |
-| 深色终端杂志风格 | `dark-terminal-magazine` | `assets/theme-previews/dark-terminal-magazine.png` |
+| 暗金杂志封面风格 | `dark-editorial-magazine` | `assets/theme-previews/theme-01-dark-editorial-magazine.png` |
+| 浅色机构午报风格 | `light-institutional-report` | `assets/theme-previews/theme-02-light-institutional-report.png` |
+| 深色终端杂志风格 | `dark-terminal-magazine` | `assets/theme-previews/theme-03-dark-terminal-magazine.png` |
 
 A theme changes background, card fill, border, typography, and density rules only. The image sequence, panel order, data fields, and 1080×1440 dimensions are identical across themes.
 

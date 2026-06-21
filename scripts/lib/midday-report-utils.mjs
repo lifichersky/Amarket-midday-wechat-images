@@ -5,6 +5,12 @@ import { fileURLToPath } from 'node:url';
 export const REPORT_TITLE = 'A股午评';
 export const OUTPUT_NAMES = ['午盘全景与资金风格', '题材温度与涨跌停结构'];
 export const REQUIRED_SOURCE_COVERAGE = ['financial_analysis', 'eastmoney', 'cls', 'stcn_databao'];
+const SOURCE_COVERAGE_ALIASES = new Map([
+  ['financial_analysis', ['financial_analysis', 'financial-analysis', 'financial analysis', 'marketInsight', '市场洞察']],
+  ['eastmoney', ['eastmoney', '东方财富']],
+  ['cls', ['cls', '财联社']],
+  ['stcn_databao', ['stcn_databao', 'stcn', '证券时报', '数据宝']]
+]);
 export const REQUIRED_INDICES = ['上证指数', '深证成指', '创业板指'];
 export const CAPITAL_FLOW_DISPLAY_LIMITS = new Map([
   ['metric_name', 6],
@@ -111,6 +117,14 @@ function sameJsonValue(left, right) {
   return JSON.stringify(left) === JSON.stringify(right);
 }
 
+function hasSourceCoverageNote(text, key) {
+  return (SOURCE_COVERAGE_ALIASES.get(key) ?? [key]).some((alias) => text.includes(alias));
+}
+
+function containsMissingPlaceholder(value) {
+  return CAPITAL_FLOW_MISSING_PATTERN.test(String(value ?? ''));
+}
+
 function resolveSchemaRef(rootSchema, ref) {
   if (!ref.startsWith('#/')) throw new Error(`Unsupported schema ref: ${ref}`);
   return ref.slice(2).split('/').reduce((cursor, rawPart) => {
@@ -164,6 +178,13 @@ function validateSchemaNode(value, schema, rootSchema, parts, errors) {
     if (schema.items) value.forEach((item, index) => validateSchemaNode(item, schema.items, rootSchema, [...parts, index], errors));
   }
   if (isPlainObject(value)) {
+    const propertyCount = Object.keys(value).length;
+    if (schema.minProperties !== undefined && propertyCount < schema.minProperties) {
+      errors.push(`schema: ${pathText(parts)} must contain at least ${schema.minProperties} properties`);
+    }
+    if (schema.maxProperties !== undefined && propertyCount > schema.maxProperties) {
+      errors.push(`schema: ${pathText(parts)} must contain at most ${schema.maxProperties} properties`);
+    }
     for (const key of schema.required ?? []) {
       if (!Object.prototype.hasOwnProperty.call(value, key)) errors.push(`schema: ${pathText([...parts, key])} is required`);
     }
@@ -277,12 +298,26 @@ export function validateMiddayData(data, options = {}) {
     }
     for (const field of ['net_text']) {
       const text = String(capitalFlow[field] ?? '').trim();
-      if (CAPITAL_FLOW_MISSING_PATTERN.test(text)) {
+      if (containsMissingPlaceholder(text)) {
         errors.push(`capital_flow.${field} cannot be a missing-data placeholder in completed image output`);
       }
       if (!CAPITAL_FLOW_AMOUNT_PATTERN.test(text)) {
         errors.push(`capital_flow.${field} must include a displayed money amount such as +69.63亿, 净流出300亿, or 0.00亿`);
       }
+    }
+    for (const field of ['receiving_directions', 'selling_directions']) {
+      const directions = capitalFlow[field];
+      if (!Array.isArray(directions) || directions.length === 0) {
+        errors.push(`capital_flow.${field} must contain at least one displayed direction`);
+        continue;
+      }
+      directions.forEach((item, index) => {
+        for (const childField of ['name', 'amount_text']) {
+          if (containsMissingPlaceholder(item?.[childField])) {
+            errors.push(`capital_flow.${field}[${index}].${childField} cannot be a missing-data placeholder in completed image output`);
+          }
+        }
+      });
     }
   }
 
@@ -329,7 +364,7 @@ export function validateMiddayData(data, options = {}) {
       if (quality.source_coverage?.[key] === false) {
         if (quality.confidence === 'high') errors.push(`data_quality.confidence cannot be high when source_coverage.${key} is false`);
         if (quality.status === 'complete') errors.push(`data_quality.status cannot be complete when source_coverage.${key} is false`);
-        if (!coverageNotes.includes(key)) errors.push(`data_quality.source_coverage.${key} is false but no warning, missing_field, or conflict reason mentions it`);
+        if (!hasSourceCoverageNote(coverageNotes, key)) errors.push(`data_quality.source_coverage.${key} is false but no warning, missing_field, or conflict reason mentions it`);
       }
     }
     for (const conflict of quality.conflicts ?? []) {

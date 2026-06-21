@@ -83,7 +83,8 @@ const THEME_NAME_TO_ID = new Map(
   Object.values(THEMES).map((theme) => [theme.name, theme.id])
 );
 
-export function resolveTheme(themeNameOrId = '暗金杂志封面风格') {
+export function resolveTheme(themeNameOrId) {
+  if (!themeNameOrId) throw new Error('Theme is required; confirm one of the three approved midday themes before rendering.');
   const id = THEMES[themeNameOrId] ? themeNameOrId : THEME_NAME_TO_ID.get(themeNameOrId);
   if (!id || !THEMES[id]) throw new Error(`Unknown theme: ${themeNameOrId}`);
   return THEMES[id];

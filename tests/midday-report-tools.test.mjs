@@ -33,6 +33,7 @@ test('themes expose exactly three approved visual systems', () => {
   assert.equal(resolveTheme('暗金杂志封面风格').id, 'dark-editorial-magazine');
   assert.equal(resolveTheme('浅色机构午报风格').id, 'light-institutional-report');
   assert.equal(resolveTheme('深色终端杂志风格').id, 'dark-terminal-magazine');
+  assert.throws(() => resolveTheme(), /Theme is required/);
   for (const theme of Object.values(THEMES)) {
     assert.equal(theme.tokens.radiusPanel, '6px');
     assert.equal(theme.tokens.radiusChip, '4px');
@@ -51,6 +52,18 @@ test('schema rejects top-level legacy or unrelated fields', async () => {
   data.emotion_model_v1 = { score: 88 };
   const result = await validateMiddayDataAgainstSchema(data);
   assert.match(result.errors.join('\n'), /emotion_model_v1.*not allowed/);
+});
+
+test('schema enforces declared source object property minimums', async () => {
+  const data = await loadSample();
+  data.sources = {
+    financial_analysis: data.sources.financial_analysis,
+    eastmoney_market: data.sources.eastmoney_market,
+    cls_limit_review: data.sources.cls_limit_review
+  };
+
+  const result = await validateMiddayDataAgainstSchema(data);
+  assert.match(result.errors.join('\n'), /sources.*at least 4 properties/);
 });
 
 test('temperature model requires the six fixed factors and score sum', async () => {
@@ -96,6 +109,22 @@ test('capital-flow net amount must be verified money, not placeholders or vague 
   assert.match(result.errors.join('\n'), /capital_flow\.net_text must include a displayed money amount/);
 });
 
+test('capital-flow direction rows are required and cannot render placeholders', async () => {
+  const data = await loadSample();
+  data.capital_flow.receiving_directions = [];
+
+  let result = await validateMiddayDataAgainstSchema(data);
+  assert.match(result.errors.join('\n'), /receiving_directions.*at least 1 items/);
+
+  result = validateMiddayData(data);
+  assert.match(result.errors.join('\n'), /capital_flow\.receiving_directions must contain at least one displayed direction/);
+
+  data.capital_flow.receiving_directions = [{ name: '待确认', amount_text: '暂无' }];
+  result = validateMiddayData(data);
+  assert.match(result.errors.join('\n'), /capital_flow\.receiving_directions\[0\]\.name/);
+  assert.match(result.errors.join('\n'), /capital_flow\.receiving_directions\[0\]\.amount_text/);
+});
+
 test('capital-flow data rejects legacy northbound field', async () => {
   const data = await loadSample();
   data.capital_flow.northbound_text = '净流入 56.2亿';
@@ -113,6 +142,17 @@ test('leading themes require limit-up counts for count-based bars', async () => 
 
   result = validateMiddayData(data);
   assert.match(result.errors.join('\n'), /themes\.leading\[0\]\.limit_up_count/);
+});
+
+test('source coverage notes accept Chinese source-family names', async () => {
+  const data = await loadSample();
+  data.data_quality.status = 'review_needed';
+  data.data_quality.confidence = 'medium';
+  data.data_quality.source_coverage.eastmoney = false;
+  data.data_quality.warnings = ['东方财富午盘页面暂不可用，已使用备用公开来源交叉核验。'];
+
+  const result = validateMiddayData(data);
+  assert.deepEqual(result.errors, []);
 });
 
 test('wechat viewpoint is opinionated, concise, and afternoon-oriented', async () => {
